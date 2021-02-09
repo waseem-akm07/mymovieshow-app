@@ -1,0 +1,159 @@
+import React from 'react';
+import './App.css';
+import { BASE_URL, API_KEY, NOW_PLAYING } from './constants/Constant';
+import Logo from './assets/MyMovieShow.jpg';
+import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
+import MovieDetail from './components/moviedetail/MovieDetail';
+
+
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      Movies: [],
+      Page: 1,
+      detail: []
+    }
+  }
+
+  componentDidMount() {
+    this.getMovies();
+  }
+
+  getMovies = () => {
+    fetch(BASE_URL + NOW_PLAYING + '?api_key=' + API_KEY + "&page=" + this.state.Page)
+      //fetch("https://api.themoviedb.org/3/movie/now_playing?api_key=d70789f6adbe0108ea7b4cfa61b6c198")      
+      .then((obj) => obj.json())
+      .then((data) => {
+        let currentMovies = this.state.Movies;
+        currentMovies = [...currentMovies, ...data.results]
+        this.setState({ Movies: currentMovies })
+
+
+      })
+  }
+
+  onImageClick = (item) => {
+
+    alert(JSON.stringify(item))
+    // console.log(JSON.stringify(item))
+    this.props.history.push('/moviedetail')
+  }
+
+  showMovies = () => {
+    if (this.state.Movies !== null) {
+      let MovieGrid = [];
+      this.state.Movies.map((item) => {
+        let rows =
+          <div class="w3-quarter">
+            <img src={"http://image.tmdb.org/t/p/w185/" + item.poster_path} style={{ "width": "100%" }}
+              onClick={() => this.onImageClick(item)} alt="se7en"
+            />
+            <div class="row">
+              <div class="col"><b>{item.title}</b></div>
+              <div class="col"><b>Vote: </b>{item.vote_count} And ❤️ {item.vote_average}% </div>
+            </div>
+            <div class="row">
+              <div class="col">Language: {item.original_language}</div>
+              <div class="col"> </div>
+            </div>
+          </div>
+        MovieGrid.push(
+          <div>
+            {rows}
+          </div>
+        )
+      })
+      return MovieGrid
+    }
+  }
+
+
+
+  onButtonClick = () => {
+    this.setState({ ...this.state, Page: this.state.Page + 1 }, () => { this.getMovies() })
+  }
+
+
+  render() {
+
+    return (
+      <BrowserRouter>
+        <div>
+
+          {/* <div class="row">
+          {this.showMovies()}
+        </div> */}
+
+          {/* Top menu on small screens */}
+
+          <header class="w3-container w3-top w3-white  w3-padding-16">
+            <span class="w3-left w3-padding">
+              <img src={Logo} style={{ "height": "50px" }} />
+              {/* <i><b>MY Movie Show</b></i> */}
+            </span>
+            {/* <a href="javascript:void(0)" class="w3-right w3-button w3-white" onclick="w3_open()">☰</a> */}
+          </header>
+
+
+          {/* html */}
+          <div class="w3-main w3-content" style={{ "max-width": "1600px", "margin-top": "83px" }}>
+
+            {/* Photo grid */}
+
+            <div class="w3-row w3-grayscale-min">
+
+              {this.showMovies()}
+
+              {/* <div class="w3-quarter">
+              <img src="/w3images/girl.jpg" style={{ "width": "100%" }} onclick="onClick(this)" alt="Canoeing again" />
+              <img src="/w3images/boy.jpg" style={{ "width": "100%" }} onclick="onClick(this)" alt="Quiet day at the beach. Cold, but beautiful" />
+              <img src="/w3images/girl.jpg" style={{ "width": "100%" }} onclick="onClick(this)" alt="The Beach. Me. Alone. Beautiful" />
+            </div> */}
+            </div>
+
+            {/* Pagination */}
+
+            <div class="w3-center w3-padding-32">
+              <div class="w3-bar">
+                <input
+                  type='button' className="w3-bar-item w3-button w3-hover-black"
+                  onClick={() => { this.onButtonClick() }} value='Find More'
+                />
+
+              </div>
+            </div>
+
+            {/* Model for full size image on click */}
+
+            <div id="modal01" class="w3-modal w3-black" style={{ "padding-top": "0" }} onclick="this.style.display='none'">
+              <span class="w3-button w3-black w3-xlarge w3-display-topright">×</span>
+              <div class="w3-modal-content w3-animate-zoom w3-center w3-transparent w3-padding-64">
+                <img id="img01" class="w3-image" />
+                <p id="caption"></p>
+              </div>
+            </div>
+
+
+
+
+
+            {/* <div class="w3-black w3-center w3-padding-24">Powered by
+           <a
+              href="https://www.w3schools.com/w3css/default.asp" title="W3.CSS" target="_blank" class="w3-hover-opacity">w3.css
+           </a>
+          </div> */}
+            {/* End page content */}
+            <Switch>
+              <Route exact path='/moviedetail' components={MovieDetail} />
+            </Switch>
+          </div>
+
+        </div>
+      </BrowserRouter>
+    );
+  }
+}
+
+export default App;
